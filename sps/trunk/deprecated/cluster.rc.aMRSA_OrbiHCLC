@@ -1,0 +1,9 @@
+PROJECT=aMRSA_OrbiHCLC
+FILE_STARS=~nbandeira/data/genentech/blind2/gtabOboth/spectra/stars.pklbin
+FILE_COMP=~nbandeira/data/genentech/blind2/gtabOboth/assembly/component_info.bin
+FILE_SEQS=~nbandeira/data/genentech/blind2/gtabOboth/assembly/sps_seqs.pklbin
+FILE_MS=~nbandeira/data/genentech/blind2/gtabOboth/spectra/specs_ms.pklbin
+FILE_INDEX=~nbandeira/data/genentech/blind2/gtabOboth/spectra/input_index.txt
+FILE_CLUSTER="~nbandeira/data/genentech/blind2/gtabOboth/spectra/out/clusters_0_*.clust.txt"
+FILE_CLUSTERMS="~nbandeira/data/genentech/blind2/gtabOboth/spectra/specs_ms_*.pklbin"
+FILE_CLUSTERSCAN="~nbandeira/data/genentech/blind2/gtabOboth/spectra/specs_ms_*.bin"

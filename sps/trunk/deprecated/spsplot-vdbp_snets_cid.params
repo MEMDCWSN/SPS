@@ -1,0 +1,13 @@
+PROJECT=vdbp_snets_cid
+OUTDIR=/data/sites/projects/sps/$USER/$PROJECT
+FILE_COMP=/home/nbandeira/data/toni/vdbp/snets_cid/test/component_info.bin
+FILE_SEQS=/home/nbandeira/data/toni/vdbp/snets_cid/test/homglue_matches.pklbin
+FILE_MP=/home/nbandeira/data/toni/vdbp/snets_cid/test/homglue_matches_mp.bin
+FILE_MIDX=/home/nbandeira/data/toni/vdbp/snets_cid/test/homglue_matches_midx.pklbin
+FILE_FASTA=/home/nbandeira/data/toni/vdbp/ncbi_toniCC.fasta
+FILE_STARS=/home/nbandeira/data/toni/vdbp/snets_cid/test/snets_specs.pklbin
+FILE_MS=/home/nbandeira/data/toni/vdbp/snets_cid/spectra/specs_ms.pklbin
+FILE_INDEX=/home/nbandeira/data/toni/vdbp/snets_cid/spectra/input_index.txt
+FILE_CLUSTER=/home/nbandeira/data/toni/vdbp/snets_cid/spectra/out/clusters_0_*.clust.txt
+FILE_CLUSTERMS=/home/nbandeira/data/toni/vdbp/snets_cid/spectra/specs_ms_*.pklbin
+FILE_CLUSTERSCAN=/home/nbandeira/data/toni/vdbp/snets_cid/spectra/specs_ms_*.bin

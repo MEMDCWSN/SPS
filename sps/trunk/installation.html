@@ -1,0 +1,51 @@
+<html>
+<header>
+<title>Shotgun Protein Sequencing: Installation instructions</title>
+</header>
+<body>
+
+<h2> Table of contents </h2>
+<ol>
+<li> <a href="#opensource">Installation instructions</a>
+<li> <a href="#testing">Testing the installation</a>
+</ol>
+
+<ol>
+<a name="opensource"><h2> <li> Installation instructions</h2></a>
+
+<h4> Before installing Shotgun Protein Sequencing: </h4>
+
+<ul>
+<li> Matlab must be installed before using this package; details on the installation of Matlab can be found on <a href="http://www.mathworks.com">Mathworks</a> website.
+<li> Compiling this package requires a standard C++ compiler - a Makefile is provided for GNU gcc.
+<li> Support for mzXML files requires the Xerces-C library. Runtime binaries can be downloaded from the <a href="http://xml.apache.org/dist/xerces-c/stable/">Xerces stable distribution</a>.
+</ul>
+
+<h4> Installing Shotgun Protein Sequencing </h4>
+
+<ol>
+<li> Edit the Makefile and change <tt>XERCES_ROOT</tt> to the directory where you installed the runtime binaries for Xerces-C. Also change <tt>CC</tt> if you're using a different compiler.
+<li> Run make
+<li> Add the Shotgun Protein Sequencing directory to Matlab's search path:
+ <ul>
+ <li>In Windows, choose the menu item "<tt>Set Path...</tt>" from the "<tt>File</tt>" menu.
+ <li>In Unix, edit (or create) your startup.m file and use <tt>addpath</tt>.
+ </ul>
+<li> In Unix, you may also need change the environment variable LD_LIBRARY_PATH to include
+the path to Xerces-C library files.
+</ol>
+
+<a name="testing"><h2> <li> Testing the installation </h2></a>
+<ol>
+<li> cd to the directory containing the example data and parameters file (default is "cd c:\sps\example")
+<li> run "sps('example.params');"
+<li> see <a href="results.html">Results</a> and <a href="analysis.html">Analysis</a> for an explanation of how to interpret the results and parameterize the spectral networks analysis.
+</ol>
+
+</ol>
+
+<hr>
+<i>Last updated October 15, 2007; maintained by Nuno Bandeira.
+
+</body>
+</html>

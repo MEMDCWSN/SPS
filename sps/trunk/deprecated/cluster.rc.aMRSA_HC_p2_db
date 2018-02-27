@@ -1,0 +1,12 @@
+PROJECT=aMRSA_HC_p2
+FILE_STARS=~nbandeira/data/genentech/blind2/gtabLHC_p2/spectra/stars.pklbin
+FILE_COMP=~nbandeira/data/genentech/blind2/gtabLHC_p2/assembly/component_info.bin
+FILE_SEQS=~nbandeira/data/genentech/blind2/gtabLHC_p2/assembly/sps_seqs.pklbin
+FILE_MS=~nbandeira/data/genentech/blind2/gtabLHC_p2/spectra/specs_ms.pklbin
+FILE_INDEX=~nbandeira/data/genentech/blind2/gtabLHC_p2/spectra/input_index.txt
+FILE_CLUSTER="~nbandeira/data/genentech/blind2/gtabLHC_p2/spectra/out/clusters_0_*.clust.txt"
+FILE_CLUSTERMS="~nbandeira/data/genentech/blind2/gtabLHC_p2/spectra/specs_ms_*.pklbin"
+FILE_CLUSTERSCAN="~nbandeira/data/genentech/blind2/gtabLHC_p2/spectra/specs_ms_*.bin"
+FILE_MP=~nbandeira/data/genentech/blind2/cspsHC_p4/homology/matchma_gtabLHC_p2_mp.bin
+FILE_MIDX=~nbandeira/data/genentech/blind2/cspsHC_p4/homology/matchma_gtabLHC_p2_midx.pklbin
+FILE_FASTA=~nbandeira/data/genentech/blind2/cspsHC_p4/protid.fasta

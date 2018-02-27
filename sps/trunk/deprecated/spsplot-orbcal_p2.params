@@ -1,0 +1,14 @@
+PROJECT=orbcal_p2
+INDIR=/home/nbandeira/data/karl/6mix
+OUTDIR=/data/sites/projects/sps/$USER/$PROJECT
+FILE_STARS=$INDIR/orbcal_p2/spectra/stars.pklbin
+FILE_COMP=$INDIR/orbcal_p2/assembly/component_info.bin
+FILE_SEQS=$INDIR/orbcal_p2/assembly/sps_seqs.pklbin
+FILE_MS=$INDIR/orbcal_p2/spectra/specs_ms.pklbin
+FILE_INDEX=$INDIR/orbcal_p2/spectra/input_index.txt
+FILE_MP=$INDIR/orbcal_csps_p2/homology/matchma_orbcal_p2_mp.bin
+FILE_MIDX=$INDIR/orbcal_csps_p2/homology/matchma_orbcal_p2_midx.pklbin
+FILE_FASTA=$INDIR/orbcal_csps_p2/protid.fasta
+FILE_REFINDEX=$INDIR/orbcal_csps_p2/homology/ref_sps_names.txt
+FILE_REFMP=$INDIR/orbcal_csps_p2/homology/homglue_ref_mp.bin
+FILE_REFMIDX=$INDIR/orbcal_csps_p2/homology/homglue_ref_midx.pklbin

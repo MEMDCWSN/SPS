@@ -1,0 +1,57 @@
+# merges multiple input spectra from specified formats and saves them to .pklbin, .mgf, and/or .pkl
+# merges multiple overlaps and saves them to .pklbin
+# merges multiple matched protein spectra and saves them to a .bin vector<vector<int> >
+# outputs <paramFile>.info with order of how many spectra were merged from each file
+# supports peak-filtering of spectra
+# supprts the merging of spectra from the same precursor
+
+# Uncomment a parameter to use it. All INPUT_* files are loaded, merged, and saved to every OUTPUT_* field as one set of spectra. To specify multiple input files of the same format, separate consecutive filenames with a ":".
+
+# INPUT_PKLBIN (*:*)=
+# INPUT_MZXML (*:*)=
+# INPUT_MGF (*:*)=
+# INPUT_PKL (*:*)=
+
+# INPUT_%_DIR specifies a driectory to load all files with the % suffix. Filenames are sorted by c++'s string comparison rules (merge order is saved to <paramFile>.info)
+# INPUT_PKL_DIR=
+# INPUT_MIC_DIR=
+
+# INPUT_MS2 (*:*)=
+# INPUT_PRMS (*:*)=
+# INPUT_PRMSV3 (*:*)=
+# INPUT_MS2 (*:*)=
+
+# If merging ab_info, must specify the .pklbin file with spectrum indicies corresponding to assembled spectra in each ab_info. Specify the .pklbin files in the "INPUT_PKLBIN" parameter in the same order as their corresponding ab_info.
+# INPUT_ABINFO (*:*)=
+
+# INPUT_OVERLAPS (*_midx.pklbin) (*:*)=
+# INPUT_MATCHED_PROTS (*_mp.bin) (*:*)=
+
+# Set MERGE_SPECS_SAME_PREC to 1 to merge spectra from the same precursor. meregConvert will first try to merge consecutive spectra with the same parent mass. If this fails, mergeConvert will try to merge spectra from parallel indices fron each input file. Must also specify TOLERANCE_PEAK_PPM to merge spectrum peaks. Set MERGE_TYPE to:
+#    0 to set the mass of each merged peak to the weighted average of merged masses
+#    1 to set the mass of each merged peak to the mass of the merged peak with the highest intensity
+#    2 to set the mass of each merged peak to the mass of its merged peak from the first spectrum in the group of spectra from the same precursor
+# MERGE_SPECS_SAME_PREC=
+# MERGE_TYPE=
+# TOLERANCE_PEAK_PPM=
+
+# Set this to remove peaks from output spectra that have intensity < <INTENSITY_FILTER>
+# INTENSITY_FILTER=
+
+# Set this to remove peaks from output spectra that do not have intensities in the top <RANK_FILTER> rank in a +/- 57 Da window.
+# RANK_FILTER
+
+# Set this to add <OFFSET_PEAKS_DA> to every peak in the output spectra
+# OFFSET_PEAKS_DA=
+
+# OUTPUT_PKLBIN=
+
+# If saving to mgf, can specify an "ACTIVATION" field for each spectrum
+# ACTIVATION=
+# OUTPUT_MGF=
+
+# OUTPUT_MS2=
+# OUPUT_PKL=
+# OUTPUT_ABINFO=
+# OUTPUT_OVERLAPS (*_midx.pklbin)=
+# OUTPUT_MATCHED_PROTS (*_mp.bin)=

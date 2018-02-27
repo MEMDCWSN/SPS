@@ -1,0 +1,10 @@
+PROJECT=hc_orbi
+#GRID_NUMNODES=64
+FILE_STARS=~/data/testsets/aBTLA/hc_orbi/spectra/stars.pklbin
+FILE_COMP=~/data/testsets/aBTLA/hc_orbi/assembly/component_info.bin
+FILE_SEQS=~/data/testsets/aBTLA/hc_orbi/assembly/sps_seqs.pklbin
+FILE_MS=~/data/testsets/aBTLA/hc_orbi/spectra/specs_ms.pklbin
+FILE_INDEX=~/data/testsets/aBTLA/hc_orbi/spectra/input_index.txt
+FILE_CLUSTER="~/data/testsets/aBTLA/hc_orbi/spectra/out/clusters_0_*.clust.txt"
+FILE_CLUSTERMS="~/data/testsets/aBTLA/hc_orbi/spectra/specs_ms_*.pklbin"
+FILE_CLUSTERSCAN="~/data/testsets/aBTLA/hc_orbi/spectra/specs_ms_*.bin"

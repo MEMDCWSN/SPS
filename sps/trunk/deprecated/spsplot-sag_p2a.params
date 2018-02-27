@@ -1,0 +1,10 @@
+PROJECT=sag_p2a
+OUTDIR=/data/sites/projects/sps/$USER/$PROJECT
+FILE_STARS=/home/nbandeira/data/pieter/dj2/sag_p2a/spectra/stars.pklbin
+FILE_COMP=/home/nbandeira/data/pieter/dj2/sag_p2a/specnets/nets_abinfo.bin
+FILE_SEQS=/home/nbandeira/data/pieter/dj2/sag_p2a/specnets/nets_seqs.pklbin
+FILE_MS=/home/nbandeira/data/pieter/dj2/sag_p2a/spectra/specs_ms.pklbin
+FILE_INDEX=/home/nbandeira/data/pieter/dj2/sag_p2a/spectra/input_index.txt
+FILE_CLUSTER=/home/nbandeira/data/pieter/dj2/sag_p2a/spectra/out/clusters_0_*.clust.txt
+FILE_CLUSTERMS=/home/nbandeira/data/pieter/dj2/sag_p2a/spectra/specs_ms_*.pklbin
+FILE_CLUSTERSCAN=/home/nbandeira/data/pieter/dj2/sag_p2a/spectra/specs_ms_*.bin

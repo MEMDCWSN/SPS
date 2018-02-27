@@ -1,0 +1,18 @@
+Spectrum Statistics V1
+#ion type names should match those in the ms2model file used in SpecNets, except for "all" which 
+#accepts all possible types and "na", which indicates that it's not applicable.
+#allowed statistic types: %explained intensity, %explained peaks, %observed ions, total peaks
+# parent mass error ppm, parent mass error da, %observed breaks
+ion types	statistic	name
+all	%explained intensity	stars_stats_ExplainedIntensity
+all	%explained peaks	stars_stats_ExplainedPeaks
+y,b	%observed difference	stars_stats_ObservedBorY
+na	%observed ions	stars_stats_ObservedNeutral
+na	%observed ions	stars_stats_ObservedDoubleCharge
+y,b	%explained difference	stars_stats_PercentIntensityBorY
+na	%explained intensity	stars_stats_PercentIntensityNeutral
+na	%explained intensity	stars_stats_PercentIntensityDouble
+na	total peaks	stars_stats_TotalPeaks
+na	parent mass error ppm	stars_stats_ParentMassErrorPPM
+na	parent mass error da	stars_stats_ParentMassErrorDa
+y,b	%observed breaks	stars_stats_ObservedBreaks

@@ -1,0 +1,13 @@
+PROJECT=orbcal_p1
+FILE_STARS=~nbandeira/data/karl/6mix/orbcal_p1/spectra/stars.pklbin
+FILE_COMP=~nbandeira/data/karl/6mix/orbcal_p1/assembly/component_info.bin
+FILE_SEQS=~nbandeira/data/karl/6mix/orbcal_p1/assembly/sps_seqs.pklbin
+FILE_MS=~nbandeira/data/karl/6mix/orbcal_p1/spectra/specs_ms.pklbin
+FILE_INDEX=~nbandeira/data/karl/6mix/orbcal_p1/spectra/input_index.txt
+FILE_MP=~nbandeira/data/karl/6mix/orbcal_csps_p1/homology/matchma_orbcal_p1_mp.bin
+FILE_MIDX=~nbandeira/data/karl/6mix/orbcal_csps_p1/homology/matchma_orbcal_p1_midx.pklbin
+FILE_FASTA=~nbandeira/data/karl/6mix/orbcal_csps_p1/protid.fasta
+FILE_REFINDEX=~nbandeira/data/karl/6mix/orbcal_csps_p1/homology/ref_sps_names.txt
+FILE_REFMP=~nbandeira/data/karl/6mix/orbcal_csps_p1/homology/homglue_ref_mp.bin
+FILE_REFMIDX=~nbandeira/data/karl/6mix/orbcal_csps_p1/homology/homglue_ref_midx.pklbin
+

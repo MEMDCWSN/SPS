@@ -1,0 +1,13 @@
+12
+OUTDIR=/data/sites/projects/sps/$USER/cochlin_snets
+FILE_FASTA=/home/nbandeira/data/mchance/cochlin/snets_p1_test/../Cochlin_ipi.MOUSE_3.64CC.fasta
+FILE_MS=/home/nbandeira/data/mchance/cochlin/snets_p1_test/spectra/specs_ms.pklbin
+FILE_INDEX=/home/nbandeira/data/mchance/cochlin/snets_p1_test/spectra/input_index.txt
+FILE_CLUSTER=/home/nbandeira/data/mchance/cochlin/snets_p1_test/spectra/out/clust/clusters_0_*.clust
+FILE_CLUSTERMS=/home/nbandeira/data/mchance/cochlin/snets_p1_test/spectra/specs_ms_*.pklbin
+FILE_CLUSTERSCAN=/home/nbandeira/data/mchance/cochlin/snets_p1_test/spectra/specs_ms_*.bin
+FILE_STARS=/home/nbandeira/data/mchance/cochlin/snets_p1_test/specnets/snets_specs.pklbin
+FILE_COMP=/home/nbandeira/data/mchance/cochlin/snets_p1_test/specnets/component_info.bin
+FILE_SEQS=/home/nbandeira/data/mchance/cochlin/snets_p1_test/specnets/homglue_main.pklbin
+FILE_MP=/home/nbandeira/data/mchance/cochlin/snets_p1_test/specnets/homglue_main_mp.bin
+FILE_MIDX=/home/nbandeira/data/mchance/cochlin/snets_p1_test/specnets/homglue_main_midx.pklbin

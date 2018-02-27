@@ -1,0 +1,8 @@
+PROJECT=aMRSA_HC
+FILE_STARS=~nbandeira/data/genentech/blind2/gtabLHC/spectra/stars.pklbin
+FILE_COMP=~nbandeira/data/genentech/blind2/gtabLHC/assembly/component_info.bin
+FILE_SEQS=~nbandeira/data/genentech/blind2/gtabLHC/assembly/sps_seqs.pklbin
+FILE_MS=~nbandeira/data/genentech/blind2/gtabLHC/spectra/specs_ms.pklbin
+FILE_INDEX=~nbandeira/data/genentech/blind2/gtabLHC/spectra/input_index.txt
+FILE_CLUSTER="~nbandeira/data/genentech/blind2/gtabLHC/spectra/out/clusters_0_*.clust.txt"
+FILE_CLUSTERMS="~nbandeira/data/genentech/blind2/gtabLHC/spectra/specs_ms_*.pklbin"

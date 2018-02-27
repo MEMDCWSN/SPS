@@ -1,0 +1,9 @@
+PROJECT=sag_p1
+FILE_STARS=~nbandeira/data/pieter/dj2/sag_p1/spectra/stars.pklbin
+FILE_COMP=~nbandeira/data/pieter/dj2/sag_p1/specnets/nets_abinfo.bin
+FILE_SEQS=~nbandeira/data/pieter/dj2/sag_p1/specnets/nets_seqs.pklbin
+FILE_MS=~nbandeira/data/pieter/dj2/sag_p1/spectra/specs_ms.pklbin
+FILE_INDEX=~nbandeira/data/pieter/dj2/sag_p1/spectra/input_index.txt
+FILE_CLUSTER="~nbandeira/data/pieter/dj2/sag_p1/spectra/out/clusters_0_*.clust.txt"
+FILE_CLUSTERMS="~nbandeira/data/pieter/dj2/sag_p1/spectra/specs_ms_*.pklbin"
+FILE_CLUSTERSCAN="~nbandeira/data/pieter/dj2/sag_p1/spectra/specs_ms_*.bin"

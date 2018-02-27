@@ -1,0 +1,16 @@
+PROJECT=sps_LTQ
+OUTDIR=/data/sites/projects/sps/$USER/$PROJECT
+FILE_STARS=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/spectra/stars.pklbin
+FILE_COMP=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/assembly/component_info.bin
+FILE_SEQS=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/assembly/sps_seqs.pklbin
+FILE_MS=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/spectra/specs_ms.pklbin
+FILE_INDEX=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/spectra/input_index.txt
+FILE_CLUSTER=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/spectra/out/clusters_0_*.clust.txt
+FILE_CLUSTERMS=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/spectra/specs_ms_*.pklbin
+FILE_CLUSTERSCAN=/home/nbandeira/data/testsets/aBTLA/sps_LTQ/spectra/specs_ms_*.bin
+FILE_MP=/home/nbandeira/data/testsets/aBTLA/csps/homology/matchma_sps_LTQ_mp.bin
+FILE_MIDX=/home/nbandeira/data/testsets/aBTLA/csps/homology/matchma_sps_LTQ_midx.pklbin
+FILE_FASTA=/home/nbandeira/data/testsets/aBTLA/csps/protid.fasta
+FILE_REFINDEX=/home/nbandeira/data/testsets/aBTLA/csps/homology/ref_sps_names.txt
+FILE_REFMP=/home/nbandeira/data/testsets/aBTLA/csps/homology/homglue_ref_mp.bin
+FILE_REFMIDX=/home/nbandeira/data/testsets/aBTLA/csps/homology/homglue_ref_midx.pklbin

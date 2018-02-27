@@ -1,0 +1,87 @@
+
+Some basic guidelines:
+================================================================================
+
+¥ÊAll header files should be commented.
+
+¥ÊIt's not necessar to comment items of private accessibility unless doing so 
+adds clarity.
+ 
+¥ÊComments should not simply be a restatement of a name of a function or a 
+variable if possible, but if necessary do so for documentation's sake. 
+ 
+¥ÊAll function/constructor parameters should be commented with the @param 
+syntax (@param parameterName description). 
+
+¥ÊFunctions that return values should use the @return tag with a brief description
+of what the function returns and the significance of it. 
+
+¥ÊClasses should include a brief description.
+
+¥ Comment blocks to be included in documentation should appear as follows:
+    
+    /** <optional short description comment goes here>
+     * Comments go here.
+     * 
+     *@tags listed in the order below (note there cannot be a space between * and @.
+     */    
+
+¥ If using eclipse or some other IDE, formatting header files in the K&R style 
+is preferred. In eclipse, for example, this is done by ctrl+A, ctrl+shift+f.
+Sometimes eclipse autoformats things stupidly ... if you possess enough motivation
+go ahead and de-mangle it but try to keep lines at a reasonable witdth (100 chars
+max).  
+
+¥ Variable declarations should not be comma separated when they are of the 
+same type. Each non-private declaration should appear on its own line with 
+proper comments.
+
+¥ Parameterless constructors and destructors need not be commented, unless 
+they do something unusual or significant.
+
+¥ API documentation should not contain implementation details, except in cases 
+of notable exception (for example, a return value could vary significantly 
+due to the input of certain parameters because of the internal implementation in
+a way that's different than one would expect just by reading the comments for 
+that function or the method name). 
+
+¥ÊIf unsure about how detailed comments should be or what they might include, 
+peek into the Java collections API's documentation. TreeSet, for example. When
+in doubt, use your experience reading Javadocs be your documentation guide. 
+ 
+
+Available Javadoc Tags
+(see http://java.sun.com/j2se/javadoc/writingdoccomments/#tag) for more info.
+================================================================================
+
+@param       (classes, interfaces, methods and constructors only)
+@return      (methods only)
+@exception   (@throws is a synonym added in Javadoc 1.2)
+@author      (classes and interfaces only, required)
+@version     (classes and interfaces only, required. See footnote 1)
+@see         
+@since       
+@serial      (or @serialField or @serialData)
+@deprecated  (see How and When To Deprecate APIs)
+
+
+Notes:
+================================================================================
+** DOxygen is currently being used. There are binaries available for Windows,
+Linux, and Mac. Further information can be found here: 
+http://www.stack.nl/~dimitri/doxygen/
+
+** For DOxygen, there is also an eclipse plugin. The instructions are 
+here: http://eclox.eu/
+
+** Using the conventions above, CppDoc can also be used (as they 
+are javadoc conventions). 
+
+** Once DOxygen is installed, a *.doxyfile is necessary. In this case, it's
+called sps.doxyfile and it's in the project root. This file contains all 
+the configuration for the documentation generation. Note that DOxygen is very
+flexible about the output it can produce, including class hierarchies generated
+using GraphViz as well as LaTeX based documentation, man page generation, and 
+compressed html help packages (*.chm).   
+
+** See inputParams.h for one example of commenting style. 

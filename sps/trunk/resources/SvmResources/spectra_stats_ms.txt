@@ -1,0 +1,20 @@
+Spectrum Statistics V1
+#ion type names should match those in the ms2model file used in SpecNets, except for "all" which 
+#accepts all possible types and "na", which indicates that it's not applicable.
+#allowed statistic types: %explained intensity, %explained peaks, %observed ions, total peaks
+# parent mass error ppm, parent mass error da, %observed breaks
+ion types	statistic	name
+all	%explained intensity	specs_ms_stats_ExplainedIntensity
+all	%explained peaks	specs_ms_stats_ExplainedPeaks
+b	%observed ions	specs_ms_stats_ObservedB
+y	%observed ions	specs_ms_stats_ObservedY
+b-iso,b-NH3,b-H2O,b-H2O-H2O,b-H2O-NH3,a,a-H2O,a-NH3,y-iso,y-NH3,y-H2O,y-H2O-NH3,y-H2O-H2O	%observed ions	specs_ms_stats_ObservedNeutral
+b++,b++-NH3,b++-H2O,b++-H2O-H20,b++-H2O-NH3,y++,y++-NH3,y++-H2O,y++-H2O-NH3,y++-H2O-H2O,P++-H2O,P++-NH3,P++	%observed ions	specs_ms_stats_ObservedDoubleCharge
+b	%explained intensity	specs_ms_stats_PercentIntensityB
+y	%explained intensity	specs_ms_stats_PercentIntensityY
+b-iso,b-NH3,b-H2O,b-H2O-H2O,b-H2O-NH3,a,a-H2O,a-NH3,y-iso,y-NH3,y-H2O,y-H2O-NH3,y-H2O-H2O	%explained intensity	specs_ms_stats_PercentIntensityNeutral
+b++,b++-NH3,b++-H2O,b++-H2O-H20,b++-H2O-NH3,y++,y++-NH3,y++-H2O,y++-H2O-NH3,y++-H2O-H2O,P++-H2O,P++-NH3,P++	%explained intensity	specs_ms_stats_PercentIntensityDouble
+na	total peaks	specs_ms_stats_TotalPeaks
+na	parent mass error ppm	specs_ms_stats_ParentMassErrorPPM
+na	parent mass error da	specs_ms_stats_ParentMassErrorDa
+y,b,y++,b++	%observed breaks	specs_ms_stats_ObservedBreaks
