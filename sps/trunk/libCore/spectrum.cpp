@@ -3692,8 +3692,14 @@ namespace specnets
    //cerr<<"Got "<<idxMatched1_zero.size()<<"/"<<idxMatched2_zero.size()<<" (at 0) + "<<idxMatched1_other.size()<<"/"<<idxMatched2_other.size()<<" (at "<<pmDiff<<") matched peaks\n";
 
    peakMatches.resize(idxMatched1_zero.size() + idxMatched1_other.size());
+   float peak_sum1 = 0.0;
+
    for (unsigned int i = 0; i < spec1.size(); i++)
+   {
      peakUsed1[i] = 0;
+     peak_sum1 = peak_sum1 + spec1[i][1];
+   }
+
    for (unsigned int i = 0; i < spec2.size(); i++)
         if (spec2[i][1] >= 0.0001)
             peakUsed2[i] = 0;
@@ -3746,7 +3752,8 @@ namespace specnets
    }
 
    if (projectedCosine) {
-       score1 = matchedPeaksNorm1;
+       //D score1 = matchedPeaksNorm1;
+       score1 = score1 / peak_sum1;     //D explained intensity
        score2 = matchedPeaksNorm2;
        cout << "matchedPeaksNorm1 = " << matchedPeaksNorm1 << endl;
        cout << "matchedPeaksNorm2 = " << matchedPeaksNorm2 << endl;
@@ -3754,7 +3761,10 @@ namespace specnets
        for (unsigned int i = 0; i < spec1.size(); i++)
            peakUsed1[i] = 0;
        for (unsigned int i = 0; i < spec2.size(); i++)
-           peakUsed2[i] = 0;
+            if (spec2[i][1] >= 0.0001)
+                peakUsed2[i] = 0;
+            else
+                peakUsed2[i] = 1;
 
        for (int i = (int)peakMatches.size() - 1; i >= 0; i--)
        {

@@ -3162,10 +3162,13 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
         Spectrum temp_spec = *query_psm->m_spectrum;
         //D explained_intensity = preprocess_library_ion_extraction(query_psm, deliminated_peptide.size(), model, ionsToExtract, allIons);
-        DEBUG_MSG("explained_intensity = " << explained_intensity << endl);
+
         *query_psm->m_spectrum = temp_spec;
 
-        explained_intensity = sqrt(score1);
+        //D explained_intensity = sqrt(score1);
+        explained_intensity = score1;
+
+        DEBUG_MSG("explained_intensity = " << explained_intensity << endl);
 
         float final_score = rescored_sim*explained_intensity;       //D SSM_score in the paper
 
@@ -3183,9 +3186,11 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         search_result->m_charge = query_spec.parentCharge;
         search_result->m_mz = query_spec.parentMZ;
         search_result->m_exactmass = query_spec.parentMass;
-        search_result->m_parentmass_difference = query_spec.parentMass - specs[library_idx].parentMass;
+        //D search_result->m_parentmass_difference = query_spec.parentMass - specs[library_idx].parentMass;
+        search_result->m_parentmass_difference = query_spec.parentMZ*specs[library_idx].parentCharge - (specs[library_idx].parentCharge-1)*AAJumps::massHion - specs[library_idx].parentMass;
 
-        search_results.push_back(search_result);
+        if ((fabs(search_result->m_parentmass_difference) <= parentmz_tolerance) || (deliminated_peptide.size() > 12))
+            search_results.push_back(search_result);
 
         DEBUG_MSG("TARGET\t"<<final_score);
     }
@@ -3275,10 +3280,12 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
         Spectrum temp_spec = *query_psm->m_spectrum;
         //D explained_intensity = preprocess_library_ion_extraction(query_psm, deliminated_peptide.size(), model, ionsToExtract, allIons);
-        DEBUG_MSG("explained_intensity = " << explained_intensity << endl);
         *query_psm->m_spectrum = temp_spec;
 
-        explained_intensity = sqrt(score1);
+        //D explained_intensity = sqrt(score1);
+        explained_intensity = score1;
+
+        DEBUG_MSG("explained_intensity = " << explained_intensity << endl);
 
         float final_score = rescored_sim*explained_intensity;
 
@@ -3296,9 +3303,11 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         search_result->m_charge = query_spec.parentCharge;
         search_result->m_mz = query_spec.parentMZ;
         search_result->m_exactmass = query_spec.parentMass;
-        search_result->m_parentmass_difference = query_spec.parentMass - decoy[decoy_idx].parentMass;
+        //D search_result->m_parentmass_difference = query_spec.parentMass - decoy[decoy_idx].parentMass;
+        search_result->m_parentmass_difference = query_spec.parentMZ*decoy[decoy_idx].parentCharge - (decoy[decoy_idx].parentCharge-1)*AAJumps::massHion - decoy[decoy_idx].parentMass;
 
-        search_results.push_back(search_result);
+        if ((fabs(search_result->m_parentmass_difference) <= parentmz_tolerance) || (deliminated_peptide.size() > 12))
+            search_results.push_back(search_result);
 
         DEBUG_MSG("DECOY\t"<<final_score);
     }
