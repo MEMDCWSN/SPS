@@ -3189,8 +3189,8 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         //D search_result->m_parentmass_difference = query_spec.parentMass - specs[library_idx].parentMass;
         search_result->m_parentmass_difference = query_spec.parentMZ*specs[library_idx].parentCharge - (specs[library_idx].parentCharge-1)*AAJumps::massHion - specs[library_idx].parentMass;
 
-        if ((fabs(search_result->m_parentmass_difference) <= parentmz_tolerance) || (deliminated_peptide.size() > 12))
-            search_results.push_back(search_result);
+        //D if ((fabs(search_result->m_parentmass_difference) <= parentmz_tolerance) || (deliminated_peptide.size() > 12))
+        search_results.push_back(search_result);
 
         DEBUG_MSG("TARGET\t"<<final_score);
     }
@@ -3306,8 +3306,8 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         //D search_result->m_parentmass_difference = query_spec.parentMass - decoy[decoy_idx].parentMass;
         search_result->m_parentmass_difference = query_spec.parentMZ*decoy[decoy_idx].parentCharge - (decoy[decoy_idx].parentCharge-1)*AAJumps::massHion - decoy[decoy_idx].parentMass;
 
-        if ((fabs(search_result->m_parentmass_difference) <= parentmz_tolerance) || (deliminated_peptide.size() > 12))
-            search_results.push_back(search_result);
+        //D if ((fabs(search_result->m_parentmass_difference) <= parentmz_tolerance) || (deliminated_peptide.size() > 12))
+        search_results.push_back(search_result);
 
         DEBUG_MSG("DECOY\t"<<final_score);
     }
@@ -3320,6 +3320,31 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
     //D search_results are mixed by both target and decoy search results
     sort(search_results.begin(), search_results.end(), search_results_comparator_psmPtr);       //D sort descendingly by m_score (more specifically SSM_score)
     if(search_results.size() > 0){
+        float top_mod_score = -1.0;
+        float top_unmod_score = -1.0;
+
+        for (vector<psmPtr>::iterator it = search_results.begin(); it != search_results.end(); it++)
+        {
+            psmPtr search_result = *it;
+            if ((top_unmod_score < 0) && (fabs(search_result->m_parentmass_difference) <= parentmz_tolerance))
+                top_unmod_score = search_result->m_score;
+            if ((top_mod_score < 0) && (fabs(search_result->m_parentmass_difference) > parentmz_tolerance))
+                top_mod_score = search_result->m_score;
+        }
+
+        if ((top_mod_score >= 0) && (top_unmod_score >= 0))
+            if (top_mod_score < 1.1*top_unmod_score)        //D not better than 10%
+            {
+                vector<psmPtr> temp;
+                for (vector<psmPtr>::iterator it = search_results.begin(); it != search_results.end(); it++)
+                {
+                    psmPtr search_result = *it;
+                    if(fabs(search_result->m_parentmass_difference) <= parentmz_tolerance)
+                        temp.push_back(search_result);
+                }
+                search_results = temp;
+            }
+
         for(int i = 0; i < top_psm_number; i++){
             if(search_results.size() <= i) break;       //D get at most top_psm_number of psms
             output_psms.push_back(search_results[i]);
