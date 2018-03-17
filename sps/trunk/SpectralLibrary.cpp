@@ -3151,7 +3151,15 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         unsigned int matchPeaks;
         float score1, score2;
         float temp = 0.5;
-        sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
+        float parentmass_difference = query_spec.parentMZ*specs[library_idx].parentCharge - (specs[library_idx].parentCharge-1)*AAJumps::massHion - specs[library_idx].parentMass;
+
+        if (fabs(parentmass_difference) > parentmz_tolerance)
+            //D sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
+            continue;
+        else
+            //D continue;
+            sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, true, true);
+
         DEBUG_MSG("sim = " << sim << endl);     //D sim is a cosine value
         DEBUG_MSG("specs[library_idx].psmList.front()->SLGF_distribution.size() = " << specs[library_idx].psmList.front()->SLGF_distribution.size() << endl);
         rescored_sim = SLGF_rescore(specs[library_idx].psmList.front()->SLGF_distribution, sim);
@@ -3273,7 +3281,15 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         unsigned int matchPeaks;
         float score1, score2;
         float temp = 0.5;
-        sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
+        float parentmass_difference = query_spec.parentMZ*decoy[decoy_idx].parentCharge - (decoy[decoy_idx].parentCharge-1)*AAJumps::massHion - decoy[decoy_idx].parentMass;
+
+        if (fabs(parentmass_difference) > parentmz_tolerance)
+            continue;
+            //D sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
+        else
+            //D continue;
+            sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, true, true);
+
         rescored_sim = SLGF_rescore(decoy[decoy_idx].psmList.front()->SLGF_distribution, sim);
         //library_name = decoy[decoy_idx].fileName;
         library_name = decoy[decoy_idx].psmList.front()->m_spectrumFile;
@@ -3319,36 +3335,29 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
     //D search_results are mixed by both target and decoy search results
     sort(search_results.begin(), search_results.end(), search_results_comparator_psmPtr);       //D sort descendingly by m_score (more specifically SSM_score)
-    if(search_results.size() > 0){
-        float top_mod_score = -1.0;
-        float top_unmod_score = -1.0;
+    if(search_results.size() > 0){      //D get at most top_psm_number unmod PSMs and top_psm_number mod PSMs
+        int N_mod = 0;
+        int N_unmod = 0;
 
+        //D vector<psmPtr> temp;
         for (vector<psmPtr>::iterator it = search_results.begin(); it != search_results.end(); it++)
         {
             psmPtr search_result = *it;
-            if ((top_unmod_score < 0) && (fabs(search_result->m_parentmass_difference) <= parentmz_tolerance))
-                top_unmod_score = search_result->m_score;
-            if ((top_mod_score < 0) && (fabs(search_result->m_parentmass_difference) > parentmz_tolerance))
-                top_mod_score = search_result->m_score;
-        }
-
-        if ((top_mod_score >= 0) && (top_unmod_score >= 0))
-            if (top_mod_score < 1.1*top_unmod_score)        //D not better than 10%
+            if (N_unmod < top_psm_number && fabs(search_result->m_parentmass_difference) <= parentmz_tolerance)
             {
-                vector<psmPtr> temp;
-                for (vector<psmPtr>::iterator it = search_results.begin(); it != search_results.end(); it++)
-                {
-                    psmPtr search_result = *it;
-                    if(fabs(search_result->m_parentmass_difference) <= parentmz_tolerance)
-                        temp.push_back(search_result);
-                }
-                search_results = temp;
+                output_psms.push_back(search_result);
+                N_unmod++;
             }
 
-        for(int i = 0; i < top_psm_number; i++){
-            if(search_results.size() <= i) break;       //D get at most top_psm_number of psms
-            output_psms.push_back(search_results[i]);
+            if (N_mod < top_psm_number && fabs(search_result->m_parentmass_difference) > parentmz_tolerance)
+            {
+                output_psms.push_back(search_result);
+                N_mod++;
+            }
         }
+
+        DEBUG_MSG("N_unmod, N_mod = " << N_unmod << ", " << N_mod << endl);
+
         return 0;
     }
 

@@ -175,6 +175,67 @@ namespace specnets
     return new ExecSpectralLibrarySearchSLGF(inputParams);
   }
 
+  void pre_process_PSMs(PeptideSpectrumMatchSet &search_results, float parentmz_tolerance, float FDR_thresh)
+  {
+      vector<psmPtr> mod_PSMs;
+      vector<psmPtr> unmod_PSMs;
+      int N_unmod_decoy = 0;
+      int N_unmod = 0;
+
+      for (int i = 0; i < search_results.size(); i++)
+        {
+            if (fabs(search_results[i]->m_parentmass_difference) <= parentmz_tolerance)
+            {
+                unmod_PSMs.push_back(search_results[i]);
+                N_unmod++;
+                if (search_results[i]->m_isDecoy == true)
+                    N_unmod_decoy++;
+            }
+            else
+                mod_PSMs.push_back(search_results[i]);
+        }
+
+      sort(unmod_PSMs.begin(), unmod_PSMs.end(), search_results_comparator_psmPtr);
+
+      //D int n = N_unmod_decoy;
+      float cutoff_score;
+      //D for finding the minimum score passing the FDR threshold
+      for (vector<psmPtr>::reverse_iterator rit = unmod_PSMs.rbegin(); rit != unmod_PSMs.rend(); ++rit)
+      {
+            if ((float)N_unmod_decoy/N_unmod <= FDR_thresh)
+            {
+                cutoff_score = (*rit)->m_score;
+                break;
+            }
+            if ((*rit)->m_isDecoy == true)
+                N_unmod_decoy--;
+            N_unmod--;
+      }
+
+      search_results.resize(0);
+      set<int> unmod_passed;        //D set of scanIDs of spectra which pass the FDR
+      for (vector<psmPtr>::iterator it = unmod_PSMs.begin(); it != unmod_PSMs.end(); it++)
+      {
+          if ((*it)->m_score < cutoff_score)
+            break;
+          if ((*it)->m_isDecoy == false)        //D unmodification target match passing 1% FDR
+          {
+              unmod_passed.insert((*it)->m_scanNum);
+              (*it)->m_score = (*it)->m_score + 1.0;        //D prioritize such matches as the highest score ones
+              search_results.push_back(*it);
+          }
+      }
+
+      //D now consider the mod list
+      for (vector<psmPtr>::iterator it = mod_PSMs.begin(); it != mod_PSMs.end(); it++)
+      {
+          if (unmod_passed.find((*it)->m_scanNum) == unmod_passed.end())
+            search_results.push_back(*it);
+      }
+
+  }
+
+
   bool ExecSpectralLibrarySearchSLGF::invoke(void){
     //Loading SLGF as a binary
     if(m_SLGF_load_mode == 2){
@@ -378,6 +439,8 @@ namespace specnets
                                                                 start_idx,      //D these indices are for searchable_spectra
                                                                 end_idx);
         cout << "m_library.size() = " << m_library.size() << endl;
+
+        //D pre_process_PSMs(m_all_search_results_high, m_search_parentmass_tolerance, 0.01);
 
         SpectralLibrary temp;
         vector<Spectrum *> temp2;
