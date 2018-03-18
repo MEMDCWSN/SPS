@@ -2461,7 +2461,7 @@ namespace specnets
     int tagNum = 20;        //D get top 20 tags from each search spectrum
     int TAG_COMMON = 1;
     bool TAG_FILTERING = true;
-    pair<float, float> MOD_RANGE(-200.0, 100.0);
+    //D pair<float, float> MOD_RANGE(-200.0, 100.0);
     //D pair<float, float> MOD_RANGE(0.0, 0.0);
 
     /*D
@@ -2964,7 +2964,7 @@ set<int> get_candidate_spectra(list <pair<string, float> > query_tags, map<strin
 
 
 //D consider modification
-set<int> get_candidate_spectra_MOD(list <pair<string, float> > query_tags, map<string, vector<pair<float, int> > > tag_map, Spectrum query_spec, vector<Spectrum> *spec_set, float parent_mass_tolerance)
+set<int> get_candidate_spectra_MOD(list <pair<string, float> > query_tags, map<string, vector<pair<float, int> > > tag_map, Spectrum query_spec, vector<Spectrum> *spec_set, float parent_mass_tolerance, pair<float, float> MOD_RANGE)
 {
     set<int> spec_idxs;
     for (list <pair<string, float> >::iterator it = query_tags.begin(); it != query_tags.end(); it++)
@@ -3059,7 +3059,8 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
                                              MS2ScoringModel &model,
                                              vector<string> &ionsToExtract,
                                              string allIons,
-                                             int abundance){
+                                             int abundance,
+                                             bool isModSearch){
 
     DEBUG_MSG("SEARCHING SCAN "<<query_spec.scan);
 
@@ -3076,8 +3077,15 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
     psmPtr query_psm(new PeptideSpectrumMatch());
     query_psm->m_spectrum = & query_spec;
 
+    pair<float, float> MOD_RANGE(0.0, 0.0);
+    if (isModSearch == true)
+    {
+        MOD_RANGE.first = -200.0;
+        MOD_RANGE.second = 100.0;
+    }
+
     DEBUG_MSG("begin target" << endl);
-    set<int> target_idxs = get_candidate_spectra_MOD(query_tags, target_map, query_spec, &specs, parentmz_tolerance);
+    set<int> target_idxs = get_candidate_spectra_MOD(query_tags, target_map, query_spec, &specs, parentmz_tolerance, MOD_RANGE);
     int target_pass_num = target_idxs.size();
 
     //D for(int library_idx = 0; library_idx < this->size(); library_idx++){
@@ -3153,11 +3161,9 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         float temp = 0.5;
         float parentmass_difference = query_spec.parentMZ*specs[library_idx].parentCharge - (specs[library_idx].parentCharge-1)*AAJumps::massHion - specs[library_idx].parentMass;
 
-        if (fabs(parentmass_difference) > parentmz_tolerance)
-            //D sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
-            continue;
+        if (isModSearch == true)
+            sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
         else
-            //D continue;
             sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, true, true);
 
         DEBUG_MSG("sim = " << sim << endl);     //D sim is a cosine value
@@ -3210,7 +3216,7 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
     query_spec = ori_query_spec;
 
-    set<int> decoy_idxs = get_candidate_spectra_MOD(query_tags, decoy_map, query_spec, &decoy.specs, parentmz_tolerance);
+    set<int> decoy_idxs = get_candidate_spectra_MOD(query_tags, decoy_map, query_spec, &decoy.specs, parentmz_tolerance, MOD_RANGE);
     int decoy_pass_num = decoy_idxs.size();
 
     //D for(int decoy_idx = 0; decoy_idx < decoy.size(); decoy_idx++){
@@ -3283,11 +3289,9 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         float temp = 0.5;
         float parentmass_difference = query_spec.parentMZ*decoy[decoy_idx].parentCharge - (decoy[decoy_idx].parentCharge-1)*AAJumps::massHion - decoy[decoy_idx].parentMass;
 
-        if (fabs(parentmass_difference) > parentmz_tolerance)
-            continue;
-            //D sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
+        if (isModSearch == true)
+            sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, false, true);
         else
-            //D continue;
             sim = query_spec.scoreMatch3(annotated_spec, temp, matchPeaks, score1, score2, true, true);
 
         rescored_sim = SLGF_rescore(decoy[decoy_idx].psmList.front()->SLGF_distribution, sim);
@@ -3334,7 +3338,7 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
     query_spec = ori_query_spec;        //D restore the query spec
 
     //D search_results are mixed by both target and decoy search results
-    sort(search_results.begin(), search_results.end(), search_results_comparator_psmPtr);       //D sort descendingly by m_score (more specifically SSM_score)
+    sort(search_results.begin(), search_results.end(), search_results_comparator_psmPtr);       //D sort decreasingly by m_score (more specifically SSM_score)
     if(search_results.size() > 0){      //D get at most top_psm_number unmod PSMs and top_psm_number mod PSMs
         int N_mod = 0;
         int N_unmod = 0;
@@ -3343,16 +3347,13 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         for (vector<psmPtr>::iterator it = search_results.begin(); it != search_results.end(); it++)
         {
             psmPtr search_result = *it;
-            if (N_unmod < top_psm_number && fabs(search_result->m_parentmass_difference) <= parentmz_tolerance)
+            if (N_unmod+N_mod < top_psm_number)
             {
                 output_psms.push_back(search_result);
-                N_unmod++;
-            }
-
-            if (N_mod < top_psm_number && fabs(search_result->m_parentmass_difference) > parentmz_tolerance)
-            {
-                output_psms.push_back(search_result);
-                N_mod++;
+                if (fabs(search_result->m_parentmass_difference) <= parentmz_tolerance)
+                    N_unmod++;
+                else
+                    N_mod++;
             }
         }
 
@@ -3413,7 +3414,8 @@ map<string, vector< pair<float, int> > > create_map(vector< list <pair<string, f
                                                                          int output_psm_count,
                                                                          int abundance,     //D abundance = 1 low, = 2 high
                                                                          int start_seach_idx,
-                                                                         int end_search_idx){
+                                                                         int end_search_idx,
+                                                                         bool isModSearch){
 
 
 
@@ -3666,7 +3668,8 @@ map<string, vector< pair<float, int> > > create_map(vector< list <pair<string, f
                                                                 model,
                                                                 ionsToExtract,
                                                                 allIons,
-                                                                abundance);
+                                                                abundance,
+                                                                isModSearch);
                 else
                     target_decoy_search = this->search_target_decoy_SLGFNew2(target_tag_lib, decoy_tag_lib, search_tag_lib[query_idx],
                                                                 decoy,

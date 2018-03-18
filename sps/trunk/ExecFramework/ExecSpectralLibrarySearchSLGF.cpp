@@ -78,7 +78,7 @@ namespace specnets
     cout << "m_output_psm_count = " << m_output_psm_count << endl;
 
     //Default all abundance
-    m_abundance_mode = inputParams.getValueInt("SEARCHABUNDANCE" , 0);
+    m_abundance_mode = inputParams.getValueInt("SEARCHABUNDANCE", 0);
 
     //Node Idx and count
     //D what are these?
@@ -437,7 +437,8 @@ namespace specnets
                                                                 m_output_psm_count,     //D the number of top psms considered
                                                                 2,      //D abundance
                                                                 start_idx,      //D these indices are for searchable_spectra
-                                                                end_idx);
+                                                                end_idx,
+                                                                false);
         cout << "m_library.size() = " << m_library.size() << endl;
 
         //D pre_process_PSMs(m_all_search_results_high, m_search_parentmass_tolerance, 0.01);
@@ -463,7 +464,8 @@ namespace specnets
                                                                 m_output_psm_count,
                                                                 1,      //D abundance
                                                                 start_idx,
-                                                                end_idx);
+                                                                end_idx,
+                                                                false);
         cout << "m_library_low.size() = " << m_library_low.size() << endl;
 
         cout << "m_all_search_results_high.size() = " << m_all_search_results_high.size() << endl;
@@ -524,7 +526,8 @@ namespace specnets
                                                                 m_output_psm_count,
                                                                 m_abundance_mode,
                                                                 start_idx,
-                                                                end_idx);
+                                                                end_idx,
+                                                                false);
 
         char buf[1000];
         ParameterList fdr_params;
