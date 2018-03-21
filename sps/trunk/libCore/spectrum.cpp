@@ -3635,15 +3635,6 @@ namespace specnets
    Spectrum spec1 = *this;
    Spectrum spec2 = spectrum_comparison;
 
-   cout << "Spec1:" << spec1.parentMass << endl;
-   for (unsigned int j = 0; j < spec1.size(); j++)
-    cout << spec1[j][0] << " " << spec1[j][1] << "; ";
-
-    cout << endl << "Spec2:" << spec2.parentMass << endl;
-   for (unsigned int j = 0; j < spec2.size(); j++)
-    cout << spec2[j][0] << " " << spec2[j][1] << "; ";
-   cout << endl;
-
 
    //sqrt intensities
    if (preprocess == true)
@@ -3773,9 +3764,6 @@ namespace specnets
            peakUsed1[peakMatches[i].i] = 1;
            peakUsed2[peakMatches[i].j] = 1;
            cosine1 += (spec1[peakMatches[i].i][1]/sqrt(matchedPeaksNorm1)) * spec2[peakMatches[i].j][1];
-           cout << "Match:" << spec1[peakMatches[i].i][0] << ", " << spec1[peakMatches[i].i][1] << " and " << spec2[peakMatches[i].j][0] << "," << spec2[peakMatches[i].j][1] << endl;
-           cout << "index: " << peakMatches[i].i << "," << peakMatches[i].j << endl;
-           cout << "partial score: " << peakMatches[i].score << endl;
          }
        }
 

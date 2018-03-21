@@ -163,79 +163,81 @@ namespace specnets
 
   private:
     void load_aminoacid_masses();
-      
+
     MS2ScoringModel model;
     std::vector<std::string> ionsToExtract;
     std::vector<std::string> ionsToExtract_low;
     std::string allIons;
-    
+
     std::string aminoacidexclusions;
-    
+
     std::string m_aminoacids_masses_file;
-      
+
     std::vector<std::string> m_mgf_file_names;
     std::vector<std::string> m_mgf_decoy_file_names;
-    
+
     std::vector<std::string> m_mgf_isocombined_file_names;
     std::vector<std::string> m_mgf_decoy_isocombined_file_names;
-    
+
     std::vector<std::string> m_mgf_lowabundance_file_names;
     std::vector<std::string> m_mgf_decoy_lowabundance_file_names;
-    
+
     std::string m_input_projection_target_string;
     std::vector<std::string> m_input_projection_target_spectra;
-    
+
     std::string m_output_mgf_file_name;
     std::string m_model_file_name;
-    
+
     float m_pvalue_filter;
     float m_envelope_filter;
-    
+
     SpectralLibrary m_library;
     SpectralLibrary m_decoy_library;
-    
+
     SpectralLibrary m_library_isocombined;
     SpectralLibrary m_library_isocombined_decoy;
-    
+
     SpectralLibrary m_library_low;
     SpectralLibrary m_decoy_library_low;
-    
-    
+
+
     SpecSet searchable_spectra;
-    
+
     float m_search_parentmass_tolerance;
-    
+
     std::string m_output_psm_filename;
-    
+    std::string m_output_psm_stage1;
+    std::string m_output_psm_stage2;
+
     int m_do_decoy_search;
     float m_score_threshold;
     int m_do_score_threshold;
-    
+
     //Determine the abundance model
     // 1: low
     // 2: high
     int m_abundance_mode;
-    
+
     //SLGF Load Mode
     // 1: MGF
     // 2: Binary File Addition
     int m_SLGF_load_mode;
-    
+
     //Determining whether to use dot product, deltaD, and or dot bias
     // 0: dot product
     // 1: dot product, deltaD
     // 2. dot product, deltaD, dot bias
     // 3. dot product + SLGF
     int m_score_calculation_method;
-    
+
     int m_output_psm_count;
-    
+
     PeptideSpectrumMatchSet m_all_search_results;
-    
+
     int m_node_idx;
     int m_node_count;
-    
-    
+
+
   };
 
 }

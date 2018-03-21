@@ -143,7 +143,8 @@ namespace specnets
                                              MS2ScoringModel &model,
                                              vector<string> &ionsToExtract,
                                              string allIons,
-                                             int abundance);
+                                             int abundance,
+                                             bool isModSearch);
 
             int search_target_decoy_specset_SLGF(SpectralLibrary &decoy,
                                                                          SpecSet searchable_spectra,
@@ -177,7 +178,8 @@ namespace specnets
                                                                          int output_psm_count,
                                                                          int abundance,
                                                                          int start_seach_idx,
-                                                                         int end_search_idx);
+                                                                         int end_search_idx,
+                                                                         bool isModSearch);
 
 
             int add_update_spectrum_to_Library(Spectrum & addition_spectrum);

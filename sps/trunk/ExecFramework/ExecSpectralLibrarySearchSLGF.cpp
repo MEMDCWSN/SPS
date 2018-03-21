@@ -60,6 +60,8 @@ namespace specnets
 
     //Specifying output psm file
     m_output_psm_filename = inputParams.getValue("output_psm", inputParams.getValue("RESULTS_DIR", ""));
+    m_output_psm_stage1 = inputParams.getValue("output_psm_stage1", inputParams.getValue("RESULTS_DIR", ""));
+    m_output_psm_stage2 = inputParams.getValue("output_psm_stage2", inputParams.getValue("RESULTS_DIR", ""));
 
     //Specify whether to search the decoy - 0 means no?
     m_do_decoy_search = inputParams.getValueInt("search_decoy", 0);
@@ -175,24 +177,20 @@ namespace specnets
     return new ExecSpectralLibrarySearchSLGF(inputParams);
   }
 
-  void pre_process_PSMs(PeptideSpectrumMatchSet &search_results, float parentmz_tolerance, float FDR_thresh)
+
+  SpecSet get_unidentified_spectra(SpecSet searchable_spectra, PeptideSpectrumMatchSet &search_results, PeptideSpectrumMatchSet &passed_PSMs, float FDR_thresh)
   {
-      vector<psmPtr> mod_PSMs;
       vector<psmPtr> unmod_PSMs;
       int N_unmod_decoy = 0;
-      int N_unmod = 0;
+      int N_unmod_target = 0;
 
       for (int i = 0; i < search_results.size(); i++)
         {
-            if (fabs(search_results[i]->m_parentmass_difference) <= parentmz_tolerance)
-            {
-                unmod_PSMs.push_back(search_results[i]);
-                N_unmod++;
-                if (search_results[i]->m_isDecoy == true)
-                    N_unmod_decoy++;
-            }
+            unmod_PSMs.push_back(search_results[i]);
+            if (search_results[i]->m_isDecoy == true)
+                N_unmod_decoy++;
             else
-                mod_PSMs.push_back(search_results[i]);
+                N_unmod_target++;
         }
 
       sort(unmod_PSMs.begin(), unmod_PSMs.end(), search_results_comparator_psmPtr);
@@ -202,37 +200,71 @@ namespace specnets
       //D for finding the minimum score passing the FDR threshold
       for (vector<psmPtr>::reverse_iterator rit = unmod_PSMs.rbegin(); rit != unmod_PSMs.rend(); ++rit)
       {
-            if ((float)N_unmod_decoy/N_unmod <= FDR_thresh)
+            if ((float)N_unmod_decoy/N_unmod_target <= FDR_thresh)      //D find the lowest score satisfying the FDR
             {
                 cutoff_score = (*rit)->m_score;
                 break;
             }
             if ((*rit)->m_isDecoy == true)
                 N_unmod_decoy--;
-            N_unmod--;
+            else
+                N_unmod_target--;
       }
 
-      search_results.resize(0);
+      passed_PSMs.resize(0);
       set<int> unmod_passed;        //D set of scanIDs of spectra which pass the FDR
       for (vector<psmPtr>::iterator it = unmod_PSMs.begin(); it != unmod_PSMs.end(); it++)
       {
           if ((*it)->m_score < cutoff_score)
-            break;
-          if ((*it)->m_isDecoy == false)        //D unmodification target match passing 1% FDR
+              break;
+          if ((*it)->m_isDecoy == false)        //D an unmodification target match passing 1% FDR
           {
               unmod_passed.insert((*it)->m_scanNum);
-              (*it)->m_score = (*it)->m_score + 1.0;        //D prioritize such matches as the highest score ones
-              search_results.push_back(*it);
+              passed_PSMs.push_back(*it);
           }
       }
 
-      //D now consider the mod list
-      for (vector<psmPtr>::iterator it = mod_PSMs.begin(); it != mod_PSMs.end(); it++)
+      SpecSet unidentified_spectra;
+      for (int i = 0; i < searchable_spectra.size(); i++)
       {
-          if (unmod_passed.find((*it)->m_scanNum) == unmod_passed.end())
-            search_results.push_back(*it);
+          if (unmod_passed.find(searchable_spectra[i].scan) == unmod_passed.end())        //D SHOULD BE UPDATED WHEN LOADING MULTIPLE SPECTRUM FILES
+              unidentified_spectra.push_back(searchable_spectra[i]);
       }
 
+     return unidentified_spectra;
+  }
+
+
+  void calculate_FDR(PeptideSpectrumMatchSet &search_results)
+  {
+      vector<psmPtr> PSMs;
+      int N_decoy = 0;
+      int N_target = 0;
+      PeptideSpectrumMatchSet temp = search_results;
+
+      for (int i = 0; i < temp.size(); i++)
+      {
+            PSMs.push_back(temp[i]);
+            if (temp[i]->m_isDecoy == true)
+                N_decoy++;
+            else
+                N_target++;
+      }
+
+      sort(PSMs.begin(), PSMs.end(), search_results_comparator_psmPtr);
+      search_results.resize(0);
+
+      for (vector<psmPtr>::reverse_iterator rit = PSMs.rbegin(); rit != PSMs.rend(); ++rit)
+      {
+            if (N_target != 0)
+                (*rit)->m_fdr = (float)N_decoy / N_target;
+            search_results.push_back(*rit);
+
+            if ((*rit)->m_isDecoy == true)
+                N_decoy--;
+            else
+                N_target--;
+      }
   }
 
 
@@ -411,6 +443,8 @@ namespace specnets
     cout << "m_abundance_mode = " << m_abundance_mode << endl;
 
     if(m_abundance_mode == 0){
+        PeptideSpectrumMatchSet unmod_all_search_results_high;
+        PeptideSpectrumMatchSet mod_all_search_results_high;
         PeptideSpectrumMatchSet m_all_search_results_high;
         PeptideSpectrumMatchSet m_all_search_results_low;
 
@@ -433,7 +467,7 @@ namespace specnets
                                                                 allIons,
                                                                 m_do_score_threshold,       //D use score_threshold or not - 0: not
                                                                 m_score_threshold,      //D specific score threshold, accepted psms should have SSM_score strictly greater than this value
-                                                                m_all_search_results_high,      //D psm result set for high abundance
+                                                                unmod_all_search_results_high,      //D psm result set for high abundance
                                                                 m_output_psm_count,     //D the number of top psms considered
                                                                 2,      //D abundance
                                                                 start_idx,      //D these indices are for searchable_spectra
@@ -441,8 +475,54 @@ namespace specnets
                                                                 false);
         cout << "m_library.size() = " << m_library.size() << endl;
 
+        DEBUG_MSG("checkpoint0");
         //D pre_process_PSMs(m_all_search_results_high, m_search_parentmass_tolerance, 0.01);
+        SpecSet mod_searchable_spectra = get_unidentified_spectra(searchable_spectra, unmod_all_search_results_high, m_all_search_results_high, 0.01);     //D the set of spectra which do not pass the first stage (unmod search)
 
+        DEBUG_MSG("checkpoint1");
+        spectra_count = mod_searchable_spectra.size();
+        cout << "2 - mod_searchable_spectra.size() = " << mod_searchable_spectra.size() << endl;
+        cout << spectra_count << " " << m_node_count << endl;
+        //Calculating ranges
+        chunk_size = spectra_count/m_node_count;
+        cout << spectra_count << " " << m_node_count << " " << chunk_size << " " << m_node_idx << endl;
+        start_idx = chunk_size * m_node_idx;
+        end_idx = chunk_size * (m_node_idx+1);
+        if(m_node_idx == (m_node_count-1)) end_idx = spectra_count;
+
+        m_library.search_target_decoy_specset_SLGF(             m_decoy_library,
+                                                                mod_searchable_spectra,
+                                                                m_search_parentmass_tolerance,
+                                                                target_library_ptr,
+                                                                decoy_library_ptr,
+                                                                m_library_isocombined,
+                                                                m_library_isocombined_decoy,
+                                                                target_library_isocombined_ptr,     //D always has a pair of target and decoy
+                                                                decoy_library_isocombined_ptr,
+                                                                m_score_calculation_method,
+                                                                model,
+                                                                ionsToExtract,
+                                                                allIons,
+                                                                m_do_score_threshold,       //D use score_threshold or not - 0: not
+                                                                m_score_threshold,      //D specific score threshold, accepted psms should have SSM_score strictly greater than this value
+                                                                mod_all_search_results_high,      //D psm result set for high abundance
+                                                                m_output_psm_count,     //D the number of top psms considered
+                                                                2,      //D abundance
+                                                                start_idx,      //D these indices are for searchable_spectra
+                                                                end_idx,
+                                                                true);
+
+        DEBUG_MSG("checkpoint2");
+        calculate_FDR(unmod_all_search_results_high);
+        calculate_FDR(mod_all_search_results_high);
+        unmod_all_search_results_high.saveToFile(m_output_psm_stage1.c_str());
+        mod_all_search_results_high.saveToFile(m_output_psm_stage2.c_str());
+
+        DEBUG_MSG("checkpoint3");
+        for (int i = 0; i < mod_all_search_results_high.size(); i++)
+            m_all_search_results_high.push_back(mod_all_search_results_high[i]);
+
+        DEBUG_MSG("checkpoint4");
         SpectralLibrary temp;
         vector<Spectrum *> temp2;
         m_library_low.search_target_decoy_specset_SLGF(             m_decoy_library_low,

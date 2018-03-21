@@ -3123,8 +3123,11 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         }
 
         //D commented for the search with modification
-        //D if (fabs(mass_difference) > parentmz_tolerance)
-        //D    continue;
+        if ((isModSearch == false) && (fabs(mass_difference) > parentmz_tolerance))
+            continue;
+        if ((isModSearch == true) && (fabs(mass_difference) <= parentmz_tolerance))
+            continue;
+
         mz_difference = (query_mass - library_mass);
 
         vector<string> deliminated_peptide = create_deliminated_aminoacids(query_psm->m_annotation);
@@ -3253,8 +3256,11 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
                 break;
         }
 
-        //D if (fabs(mass_difference) > parentmz_tolerance)
-        //D    continue;
+        if ((isModSearch == false) && (fabs(mass_difference) > parentmz_tolerance))
+            continue;
+        if ((isModSearch == true) && (fabs(mass_difference) <= parentmz_tolerance))
+            continue;
+
         mz_difference = (query_mass - library_mass);
 
         vector<string> deliminated_peptide = create_deliminated_aminoacids(query_psm->m_annotation);        //D query_psm->m_annotation was already assigned to the decoy spectrum's annotation
