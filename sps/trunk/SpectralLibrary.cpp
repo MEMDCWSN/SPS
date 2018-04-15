@@ -3113,14 +3113,10 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         if(fabs(mz_difference) > parentmz_tolerance) continue;
         D*/
         float mass_difference, mz_difference;
-        for (query_charge = 2; query_charge <= 4; query_charge++)
-        {
-            float query_parent_mass = query_mass*query_charge - (query_charge-1)*AAJumps::massHion;
-            float library_parent_mass = library_mass*charge - (charge-1)*AAJumps::massHion;
-            mass_difference = query_parent_mass - library_parent_mass;
-            if (fabs(mass_difference) <= parentmz_tolerance)
-                break;
-        }
+
+        float query_parent_mass = query_mass*charge - (charge-1)*AAJumps::massHion;
+        float library_parent_mass = library_mass*charge - (charge-1)*AAJumps::massHion;
+        mass_difference = query_parent_mass - library_parent_mass;
 
         //D commented for the search with modification
         if ((isModSearch == false) && (fabs(mass_difference) > parentmz_tolerance))
@@ -3146,7 +3142,7 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         psmPtr ref_psm = specs[library_idx].psmList.front();
 
         vector <pair<float, float> > extracted_ion;
-        ref_psm->annotate(ref_psm->m_annotation, allIons, model, 0, 0, .50);
+        ref_psm->annotate(ref_psm->m_annotation, allIons, model, 0, 0, peakTol);
         extractIons(ref_psm, deliminated_peptide.size(), model, ionsToExtract, extracted_ion, 0, 0);     //D extractIons(library,peptideLength,model,ionsToExtract,library->m_ion_extraction, 0, 0);
 
         sort(extracted_ion.begin(), extracted_ion.end(), mass_intensity_pair_mass_comp);
@@ -3161,7 +3157,7 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
         unsigned int matchPeaks;
         float score1, score2;
-        float temp = 0.5;
+        float temp = peakTol;
         float parentmass_difference = query_spec.parentMZ*specs[library_idx].parentCharge - (specs[library_idx].parentCharge-1)*AAJumps::massHion - specs[library_idx].parentMass;
 
         if (isModSearch == true)
@@ -3247,14 +3243,10 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         if(fabs(mz_difference) > parentmz_tolerance) continue;
         D*/
         float mass_difference, mz_difference;
-        for (query_charge = 2; query_charge <= 4; query_charge++)
-        {
-            float query_parent_mass = query_mass*query_charge - (query_charge-1)*AAJumps::massHion;
-            float library_parent_mass = library_mass*charge - (charge-1)*AAJumps::massHion;
-            mass_difference = query_parent_mass - library_parent_mass;
-            if (fabs(mass_difference) <= parentmz_tolerance)
-                break;
-        }
+
+        float query_parent_mass = query_mass*charge - (charge-1)*AAJumps::massHion;
+        float library_parent_mass = library_mass*charge - (charge-1)*AAJumps::massHion;
+        mass_difference = query_parent_mass - library_parent_mass;
 
         if ((isModSearch == false) && (fabs(mass_difference) > parentmz_tolerance))
             continue;
@@ -3276,7 +3268,7 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         psmPtr ref_psm = decoy[decoy_idx].psmList.front();
 
         vector <pair<float, float> > extracted_ion;
-        ref_psm->annotate(ref_psm->m_annotation, allIons, model, 0, 0, .50);
+        ref_psm->annotate(ref_psm->m_annotation, allIons, model, 0, 0, peakTol);
         extractIons(ref_psm, deliminated_peptide.size(), model, ionsToExtract, extracted_ion, 0, 0);     //D extractIons(library,peptideLength,model,ionsToExtract,library->m_ion_extraction, 0, 0);
 
         sort(extracted_ion.begin(), extracted_ion.end(), mass_intensity_pair_mass_comp);
@@ -3292,7 +3284,7 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
         unsigned int matchPeaks;
         float score1, score2;
-        float temp = 0.5;
+        float temp = peakTol;
         float parentmass_difference = query_spec.parentMZ*decoy[decoy_idx].parentCharge - (decoy[decoy_idx].parentCharge-1)*AAJumps::massHion - decoy[decoy_idx].parentMass;
 
         if (isModSearch == true)
@@ -3454,6 +3446,7 @@ map<string, vector< pair<float, int> > > create_map(vector< list <pair<string, f
 
         //D Preextracting ions for target and decoy libraries
         DEBUG_MSG("target_library_ptr.size() = " << target_library_ptr.size() << endl);
+        if (isModSearch == false)
         for(int lib_idx = 0; lib_idx < target_library_ptr.size(); lib_idx++){
             preprocess_library_ion_extraction(target_library_ptr[lib_idx]->psmList.front(),
                           create_deliminated_aminoacids(target_library_ptr[lib_idx]->psmList.front()->m_annotation).size(),
@@ -3463,6 +3456,7 @@ map<string, vector< pair<float, int> > > create_map(vector< list <pair<string, f
         }
 
         DEBUG_MSG("decoy_library_ptr.size() = " << decoy_library_ptr.size() << endl);
+        if (isModSearch == false)
         for(int lib_idx = 0; lib_idx < decoy_library_ptr.size(); lib_idx++){
             //D DEBUG_MSG("1- " << create_deliminated_aminoacids(decoy_library_ptr[lib_idx]->psmList.front()->m_annotation).size() << endl);
             //D DEBUG_MSG("2- " << create_deliminated_aminoacids(decoy_library_ptr[lib_idx]->psmList.front()->m_annotation).size() << endl);
