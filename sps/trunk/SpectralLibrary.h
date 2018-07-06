@@ -128,6 +128,7 @@ namespace specnets
 
             //DW
             int search_target_decoy_SLGFNew3(map<string, vector<pair<float, int> > > target_map, map<string, vector<pair<float, int> > > decoy_map, list <pair<string, float> > query_tags,
+                                             vector<pair<float, int> > target_mz_idx, vector<pair<float, int> > decoy_mz_idx, vector<vector<float> >target_top_mz, vector<vector<float> > decoy_top_mz,
                                              SpectralLibrary &decoy,        //D search_target_decoy_SLGF_NEW
                                              Spectrum query_spec,
                                              vector<psmPtr> & output_psms,

@@ -313,6 +313,7 @@ namespace specnets
 
         //D find neighbors for each peak
         for (int i = 0; i < numPeaks; i++)
+        if (spec[i][0] >= 250)
         {
             neighb[i].clear();
             for (int j = 0; j < jumps.size(); j++)

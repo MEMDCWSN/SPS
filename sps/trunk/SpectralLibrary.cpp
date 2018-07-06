@@ -3000,12 +3000,13 @@ set<int> get_candidate_spectra_MOD(list <pair<string, float> > query_tags, map<s
                 {
                     //D for the charge issue
                     float mass_difference;
-                    for (int query_charge = 2; query_charge <= 4; query_charge++)
+                    for (int query_charge = 2; query_charge <= 5; query_charge++)
                     {
                         float query_mass = query_spec.parentMZ*query_charge - (query_charge-1)*AAJumps::massHion;
                         mass_difference = query_mass - (*spec_set)[temp[i].second].parentMass;
                         //D if (fabs((query_mass-(*spec_set)[temp[i].second].parentMass) - (flankingPrefix-temp[i].first)) <= comparTol)
-                        if (fabs(mass_difference - (flankingPrefix-temp[i].first)) <= parent_mass_tolerance + comparTol)
+                        if ((fabs(mass_difference - (flankingPrefix-temp[i].first)) <= parent_mass_tolerance + comparTol)
+                        or (fabs(flankingPrefix-temp[i].first) <= parent_mass_tolerance + comparTol))
                         {
                             spec_idxs.insert(temp[i].second);       //D found a candidate spectrum ID
                             break;
@@ -3021,12 +3022,13 @@ set<int> get_candidate_spectra_MOD(list <pair<string, float> > query_tags, map<s
                 {
                     //D for the charge issue
                     float mass_difference;
-                    for (int query_charge = 2; query_charge <= 4; query_charge++)
+                    for (int query_charge = 2; query_charge <= 5; query_charge++)
                     {
                         float query_mass = query_spec.parentMZ*query_charge - (query_charge-1)*AAJumps::massHion;
                         mass_difference = query_mass - (*spec_set)[temp[i].second].parentMass;
                         //D if (fabs((query_mass-(*spec_set)[temp[i].second].parentMass) - (flankingPrefix-temp[i].first)) <= comparTol)
-                        if (fabs(mass_difference - (flankingPrefix-temp[i].first)) <= parent_mass_tolerance + comparTol)
+                        if ((fabs(mass_difference - (flankingPrefix-temp[i].first)) <= parent_mass_tolerance + comparTol)
+                        or (fabs(flankingPrefix-temp[i].first) <= parent_mass_tolerance + comparTol))
                         {
                             spec_idxs.insert(temp[i].second);       //D found a candidate spectrum ID
                             break;
@@ -3043,7 +3045,66 @@ set<int> get_candidate_spectra_MOD(list <pair<string, float> > query_tags, map<s
 }
 
 
+float top_peak_mz(Spectrum spec)
+{
+    float maxi = 0.0;
+    int pos;
+    for (int i = 0; i < spec.size(); i++)
+        if (spec[i][1] > maxi)
+        {
+            maxi = spec[i][1];
+            pos = i;
+        }
+
+    return spec[pos][0];
+}
+
+
+set<int> get_mz_candidate(float best_mz, vector<pair<float, int> > mz_idx, float peakTol)
+{
+    set<int> spec_idxs;
+    int L = 0;      //D do binary search to find candidate spec Idxs
+    int R = mz_idx.size() - 1;
+    int M;
+
+    float upper_mass = best_mz + peakTol;
+    float lower_mass = best_mz - peakTol;
+
+    while (L <= R)
+    {
+        M = (L+R) / 2;
+        if (mz_idx[M].first > upper_mass)
+            R = M - 1;
+        else
+            if (mz_idx[M].first < lower_mass)
+                L = M + 1;
+            else
+                break;
+    }
+
+    if (L <= R)     //D there is at least a lib spec matched
+    {
+        int i = M;
+        while ((i >= 0) and (mz_idx[i].first >= lower_mass))
+        {
+            spec_idxs.insert(mz_idx[i].second);       //D found a candidate spectrum ID
+            i--;
+        }
+
+        i = M + 1;
+        while ((i < mz_idx.size()) and (mz_idx[i].first <= upper_mass))
+        {
+            spec_idxs.insert(mz_idx[i].second);       //D found a candidate spectrum ID
+            i++;
+        }
+    }
+
+    return spec_idxs;
+}
+
+
 int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float, int> > > target_map, map<string, vector<pair<float, int> > > decoy_map, list <pair<string, float> > query_tags,
+                                             vector<pair<float, int> > target_mz_idx, vector<pair<float, int> > decoy_mz_idx, vector<vector<float> >target_top_mz, vector<vector<float> > decoy_top_mz,
                                              SpectralLibrary &decoy,        //D search_target_decoy_SLGF_NEW
                                              Spectrum query_spec,
                                              vector<psmPtr> & output_psms,
@@ -3072,6 +3133,7 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
     float ISOTOPIC_MZ_ERROR_THRESHOLD = 1.2;
 
     Spectrum ori_query_spec = query_spec;
+    float best_query_mz = top_peak_mz(query_spec);
 
     float query_intensity = query_spec.getTotalIonCurrent();
     psmPtr query_psm(new PeptideSpectrumMatch());
@@ -3085,7 +3147,20 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
     }
 
     DEBUG_MSG("begin target" << endl);
-    set<int> target_idxs = get_candidate_spectra_MOD(query_tags, target_map, query_spec, &specs, parentmz_tolerance, MOD_RANGE);
+    set<int> target_idxs;
+    set<int> target_idxs1 = get_candidate_spectra_MOD(query_tags, target_map, query_spec, &specs, parentmz_tolerance, MOD_RANGE);
+    //D if (isModSearch == false)
+    if (false)
+    {
+        set<int> target_idxs2 = get_mz_candidate(best_query_mz, target_mz_idx, peakTol);
+        set_intersection(target_idxs1.begin(), target_idxs1.end(), target_idxs2.begin(), target_idxs2.end(),
+                        std::inserter(target_idxs, target_idxs.begin()));
+        DEBUG_MSG("target1_pass_num = " << target_idxs1.size() << endl);
+        DEBUG_MSG("target2_pass_num = " << target_idxs2.size() << endl);
+    }
+    else
+        target_idxs = target_idxs1;
+
     int target_pass_num = target_idxs.size();
 
     //D for(int library_idx = 0; library_idx < this->size(); library_idx++){
@@ -3103,7 +3178,9 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         float percent_intensity = 0.f;
 
         query_psm->m_annotation = specs[library_idx].psmList.front()->m_annotation;
-        DEBUG_MSG("query_psm->m_annotation = " << query_psm->m_annotation << endl);
+        DEBUG_MSG("query_psm->m_spectrum->scan =" << query_psm->m_spectrum->scan << "specs[library_idx].scan =" << specs[library_idx].scan << endl);
+        DEBUG_MSG("library_idx =" << library_idx << " specs[library_idx].parentCharge = " << specs[library_idx].parentCharge << endl);
+        DEBUG_MSG("query_charge = " << query_charge << " " << "query_psm->m_annotation = " << query_psm->m_annotation << endl);
         cout << query_psm->m_spectrum->scan << " query_psm->m_annotation = " << query_psm->m_annotation << endl;
 
 
@@ -3183,7 +3260,10 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
         DEBUG_MSG("explained_intensity = " << explained_intensity << endl);
 
-        float final_score = rescored_sim*explained_intensity;       //D SSM_score in the paper
+        //D float final_score = rescored_sim*explained_intensity;       //D SSM_score in the paper
+        //D float final_score = rescored_sim*explained_intensity*(log(matchPeaks+1)+1);       //D SSM_score in the paper
+        //D float final_score = rescored_sim*explained_intensity*(sqrt(matchPeaks)+1);
+        float final_score = rescored_sim*explained_intensity*(matchPeaks+1);
 
         psmPtr search_result(new PeptideSpectrumMatch());
         search_result->m_annotation = query_psm->m_annotation;      //D was already assigned to the library annotation
@@ -3193,7 +3273,12 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         search_result->m_pValue = sim;      //D a cosine similarity score
         search_result->m_spectrumFile = query_spec.fileName;
         search_result->m_dbIndex = library_idx + 1;     //D index plus 1
+        //D search_result->m_scanNum = query_psm->m_spectrum->scan;
+        search_result->m_scanNum = query_spec.scan;
         search_result->m_library_name = get_only_filename(library_name);
+        search_result->m_strict_envelope_score = rescored_sim;      //D temporary
+        search_result->m_unstrict_envelope_score = explained_intensity;     //D temporary
+        search_result->m_shared_peaks = matchPeaks;     //D temporary
 
         //D just added
         search_result->m_charge = query_spec.parentCharge;
@@ -3215,7 +3300,20 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
     query_spec = ori_query_spec;
 
-    set<int> decoy_idxs = get_candidate_spectra_MOD(query_tags, decoy_map, query_spec, &decoy.specs, parentmz_tolerance, MOD_RANGE);
+    set<int> decoy_idxs;
+    set<int> decoy_idxs1 = get_candidate_spectra_MOD(query_tags, decoy_map, query_spec, &decoy.specs, parentmz_tolerance, MOD_RANGE);
+    //D if (isModSearch == false)
+    if (false)
+    {
+        set<int> decoy_idxs2 = get_mz_candidate(best_query_mz, decoy_mz_idx, peakTol);
+        set_intersection(decoy_idxs1.begin(), decoy_idxs1.end(), decoy_idxs2.begin(), decoy_idxs2.end(),
+                        std::inserter(decoy_idxs, decoy_idxs.begin()));
+        DEBUG_MSG("decoy1_pass_num = " << decoy_idxs1.size() << endl);
+        DEBUG_MSG("decoy2_pass_num = " << decoy_idxs2.size() << endl);
+    }
+    else
+        decoy_idxs = decoy_idxs1;
+
     int decoy_pass_num = decoy_idxs.size();
 
     //D for(int decoy_idx = 0; decoy_idx < decoy.size(); decoy_idx++){
@@ -3234,6 +3332,9 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
 
         query_psm->m_annotation = decoy[decoy_idx].psmList.front()->m_annotation;
+        DEBUG_MSG("query_psm->m_spectrum->scan =" << query_psm->m_spectrum->scan << "decoy[decoy_idx].scan =" << decoy[decoy_idx].scan << endl);
+        DEBUG_MSG("decoy_idx =" << decoy_idx << " decoy[decoy_idx].parentCharge = " << decoy[decoy_idx].parentCharge << endl);
+        DEBUG_MSG("query_charge = " << query_charge << " " << "query_psm->m_annotation = " << query_psm->m_annotation << endl);
         DEBUG_MSG("query_psm->m_annotation = " << query_psm->m_annotation << endl);
         cout << query_psm->m_spectrum->scan << " query_psm->m_annotation = " << query_psm->m_annotation << endl;
 
@@ -3305,7 +3406,10 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
 
         DEBUG_MSG("explained_intensity = " << explained_intensity << endl);
 
-        float final_score = rescored_sim*explained_intensity;
+        //D float final_score = rescored_sim*explained_intensity;
+        //D float final_score = rescored_sim*explained_intensity*(log(matchPeaks+1)+1);
+        //D float final_score = rescored_sim*explained_intensity*(sqrt(matchPeaks)+1);
+        float final_score = rescored_sim*explained_intensity*(matchPeaks+1);
 
         psmPtr search_result(new PeptideSpectrumMatch());
         search_result->m_annotation = query_psm->m_annotation;
@@ -3315,7 +3419,12 @@ int SpectralLibrary::search_target_decoy_SLGFNew3(map<string, vector<pair<float,
         search_result->m_pValue = sim;      //D cosine similarity value
         search_result->m_spectrumFile = query_spec.fileName;
         search_result->m_dbIndex = decoy_idx + 1;
+        //D search_result->m_scanNum = query_psm->m_spectrum->scan;
+        search_result->m_scanNum = query_spec.scan;
         search_result->m_library_name = get_only_filename(library_name);
+        search_result->m_strict_envelope_score = rescored_sim;      //D temporary
+        search_result->m_unstrict_envelope_score = explained_intensity;     //D temporary
+        search_result->m_shared_peaks = matchPeaks;     //D temporary
 
         //D just added
         search_result->m_charge = query_spec.parentCharge;
@@ -3391,6 +3500,53 @@ map<string, vector< pair<float, int> > > create_map(vector< list <pair<string, f
 
     return tag_map;
 }
+
+
+void create_mz_idx(vector<Spectrum> *spec_lib, int N_TOP_PEAKS, vector< pair<float, int> > & mz_idx, vector<vector<float> > & top_peak_mz)
+{
+
+    /*
+  for (int i = 0; i < test.size(); ++i) {
+    q.push(std::pair<double, int>(test[i], i));
+  }
+  int k = 3; // number of indices we need
+  for (int i = 0; i < k; ++i) {
+    int ki = q.top().second;
+    std::cout << "index[" << i << "] = " << ki << std::endl;
+    q.pop();
+  }
+  */
+
+    //vector< pair<float, int> > mz_idx_pair;
+
+    mz_idx.resize(0);
+    top_peak_mz.resize(0);
+
+    for (int i = 0; i < spec_lib->size(); i++)
+    {
+        vector <float> mz_value;        // store top mz values of spec[i]
+        std::priority_queue<std::pair<float, float> > Q;
+        for (int j = 0; j < (*spec_lib)[i].size(); j++)
+        {
+            pair<float, float> peak_j((*spec_lib)[i][j][1], (*spec_lib)[i][j][0]);
+            Q.push(peak_j);
+        }
+
+        for (int j = 0; j < min(N_TOP_PEAKS, (int)(*spec_lib)[i].size()); j++)
+        {
+            mz_value.push_back(Q.top().second);
+            pair<float, int> mz_idx_pair(Q.top().second, i);        //D mz value, spec index
+            mz_idx.push_back(mz_idx_pair);
+            Q.pop();
+        }
+
+        sort(mz_value.begin(), mz_value.end());
+        top_peak_mz.push_back(mz_value);
+    }
+
+    sort(mz_idx.begin(), mz_idx.end());     //D sort mz values increasingly
+}
+
 
 
     int SpectralLibrary::search_target_decoy_specset_SLGF(SpectralLibrary &decoy,       //D decoy spectrum set
@@ -3546,8 +3702,22 @@ map<string, vector< pair<float, int> > > create_map(vector< list <pair<string, f
             //D map<string, vector<pair<float, int> > > search_tags = create_map(search_tag_lib);
             now = time(0);
             dt = ctime(&now);
-            cout << "end create map time = " << now << endl;
+            cout << "end create map time = " << dt << endl;
         }
+
+        // CREATE MZ INDICES
+        vector<pair<float, int> > target_mz_idx;        //D mz value and spec index
+        vector<pair<float, int> > decoy_mz_idx;
+        vector<vector<float> > target_top_mz;       //D top peak mz values of the decoy spectra
+        vector<vector<float> > decoy_top_mz;
+
+        int N_TOP_PEAKS = 20;
+        //D create_mz_idx(&specs, N_TOP_PEAKS, target_mz_idx, target_top_mz);
+        //D create_mz_idx(&decoy.specs, N_TOP_PEAKS, decoy_mz_idx, decoy_top_mz);
+
+        now = time(0);
+        dt = ctime(&now);
+        cout << "end mz creating time = " << dt << endl;
 
         //Dcout << "SEARCH NOW (double) clock() = " << (double) clock() << endl;
         int searched_count = 0;     //D the number of search spectra which have at least a psm
@@ -3653,6 +3823,7 @@ map<string, vector< pair<float, int> > > create_map(vector< list <pair<string, f
            else
                 if (TAG_COMMON == 1)        //D can do union of the sets of candidate specIDs
                     target_decoy_search = this->search_target_decoy_SLGFNew3(lib_tag_map, decoy_tag_map, search_tag_lib[query_idx],
+                                                                target_mz_idx, decoy_mz_idx, target_top_mz, decoy_top_mz,
                                                                 decoy,
                                                                 searchable_spectra[query_idx],
                                                                 targetdecoy_psms,       //D output psms

@@ -376,6 +376,12 @@ namespace specnets
     vector<psmPtr> all_decoy_search_results;
 
     cout<< "searchable_spectra.size() = " << searchable_spectra.size()<<endl;
+    for (int i = 0; i < searchable_spectra.size(); i++)
+    {
+        //D searchable_spectra[i].rankFilterPeaks(10);
+        //D searchable_spectra[i].filterLowMassPeaks(200.0);
+        //D searchable_spectra[i].removeChargeReducedPrecursors(10.0, false, 0.0);
+    }
 
     for(int i = 0; i < m_library.size(); i++){
         m_library[i].psmList.front()->m_dbIndex = i;
